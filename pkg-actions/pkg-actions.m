@@ -13,7 +13,7 @@
 	#define LOG(...)
 #endif
 
-#define DPKG_PATH ROOT_PATH("/var/lib/dpkg/info/ai.akemi.appsyncunified.list")
+#define DPKG_PATH "/var/lib/dpkg/info/ai.akemi.appsyncunified.list"
 
 #define L_LAUNCHDAEMON_PATH "/Library/LaunchDaemons"
 #define SL_LAUNCHDAEMON_PATH "/System" L_LAUNCHDAEMON_PATH
@@ -39,10 +39,10 @@ static int run_posix_spawn(const char *args[]) {
 static const char *determine_launchctl_path() {
 	// launchctl is shipped as part of the jailbreak bootstrap, not iOS itself.
 	// Some jailbreak bootstraps put launchctl inside /sbin instead of /bin for some reason, which is where it normally resides (at least on macOS).
-	if (access(ROOT_PATH("/bin/launchctl"), X_OK) == -1) {
-		return ROOT_PATH("/sbin/launchctl");
+	if (access("/bin/launchctl", X_OK) == -1) {
+		return "/sbin/launchctl";
 	}
-	return ROOT_PATH("/bin/launchctl");
+	return "/bin/launchctl";
 }
 
 static int run_launchctl(const char *path, const char *cmd, bool is_installd) {
@@ -104,7 +104,7 @@ int main(int argc, const char **argv) {
 				printf("This device is /probably/ running the Phœnix jailbreak (detected iOS 9.3.x and a 32-bit CPU architecture).\n");
 				printf("Due to a bug in Phœnix, the asu_inject LaunchDaemon (which launches /usr/bin/asu_inject once upon boot) is required in order to properly inject AppSync Unified into installd.\n");
 				// This path lookup does not need to be rootless-aware for obvious reasons, but we might as well do this just in case someone decides to release a rootless jailbreak for older iOS versions (… whyever anyone would ever want to do that).
-				if (access(ROOT_PATH("/usr/bin/cynject"), X_OK) != -1) {
+				if (access("/usr/bin/cynject", X_OK) != -1) {
 					printf("Found an executable copy of cynject on this device!\n");
 					chown(ASU_INJECT_PLIST_PATH, 0, 0);
 					chmod(ASU_INJECT_PLIST_PATH, 0644);
@@ -130,7 +130,7 @@ int main(int argc, const char **argv) {
 			//     ・The user is installing AppSync Unified using an APT frontend that supports the CYDIA environment variable (Cydia, Zebra, Sileo, etc.)
 			//     ・The file /ai.akemi.appsyncunified.no-postinst-notification does not exist in the rootFS or the rootless prefix path.
 			//         ※ This was originally used for KarenTools automated testing, but you can still use it to permanently silence the notification when using APT frontends.
-			if (getenv("CYDIA") != NULL && access(ROOT_PATH("/ai.akemi.appsyncunified.no-postinst-notification"), F_OK) == -1) {
+			if (getenv("CYDIA") != NULL && access("/ai.akemi.appsyncunified.no-postinst-notification", F_OK) == -1) {
 				// TODO: For some reason, this notification doesn't appear on my iOS 10 device. It's a minor bug though, so I'll allow it for now.
 				// … Even if that makes my perfectionist self scream in intense, agonising pain (🍍˃̶͈̀ロ˂̶͈́)੭ꠥ⁾⁾
 
